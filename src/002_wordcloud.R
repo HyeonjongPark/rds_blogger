@@ -9,6 +9,7 @@ library(devtools)
 library(wordcloud2)
 library(RColorBrewer)
 
+
 # data 출처 : https://www1.president.go.kr/petitions/592084
 
 simu <- readLines('./data/simu7.txt',encoding = 'UTF-8')
