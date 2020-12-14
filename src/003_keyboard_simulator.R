@@ -6,16 +6,17 @@ library(KeyboardSimulator)
 
 ### page 1
 mouse.move(282,570)
+Sys.sleep(0.3)
 mouse.click()
 
 Sys.sleep(0.3)
 keybd.press('pagedown')
 
+Sys.sleep(0.3)
 mouse.move(343,574)
 Sys.sleep(0.2)
 mouse.click()
-
-Sys.sleep(1) # page 전환
+Sys.sleep(1.5) # page 전환
 
 
 ### page 2
@@ -109,7 +110,7 @@ Sys.sleep(0.2)
 mouse.move(427,811)
 Sys.sleep(0.2)
 mouse.click()
-Sys.sleep(1)
+Sys.sleep(1.5)
 
 
 
@@ -248,7 +249,7 @@ Sys.sleep(0.2)
 mouse.move(416,171)
 Sys.sleep(0.2)
 mouse.click()
-Sys.sleep(1)
+Sys.sleep(1.5)
 
 
 
