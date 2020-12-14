@@ -1,5 +1,5 @@
 
-install.packages("KeyboardSimulator")
+#install.packages("KeyboardSimulator")
 
 library(KeyboardSimulator)
 
@@ -252,96 +252,23 @@ Sys.sleep(1)
 
 
 
-### page 5
-
-keybd.press("home")
-Sys.sleep(0.3)
-
-mouse.move(426,767)
-Sys.sleep(0.2)
-mouse.click()
-Sys.sleep(1)
-
-
-### page 6
-mouse.move(,)
-Sys.sleep(0.2)
-mouse.click()
-Sys.sleep(1)
-
-
+# ### page 5
+# 
+# keybd.press("home")
+# Sys.sleep(0.3)
+# 
+# mouse.move(426,767)
+# Sys.sleep(0.2)
+# mouse.click()
+# Sys.sleep(1)
+# 
+# 
+# ### page 6
+# mouse.move(,)
+# Sys.sleep(0.2)
+# mouse.click()
+# Sys.sleep(1)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# mouse cursor의 현재 위치 파악하기
-mouse.get_cursor()
-
-# 파악한 cursor의 현재위치로 mouse 좌표 이동
-mouse.move(566,843)
-
-# 마우스 좌클릭
-mouse.click()
-
-keybd.press("Ctrl+a")
-Sys.sleep(0.3)
-keybd.press("Ctrl+c")
-Sys.sleep(0.3)
-keybd.press("Ctrl+v")
-Sys.sleep(0.3)
-keybd.press("Ctrl+v")
-
-
-
-# Alt + Tab을 사용하는 방법
-# 누른 상태 유지
-keybd.press("Alt", hold = TRUE)
-
-# 누르기
-keybd.press('Tab')
-
-# Alt 떼주기
-keybd.release('Alt')
-
-
-
-keybd.press("Alt+f4")
-
-keybd.press("Ctrl+A")
-
-
-
-
-### 메모장쪽으로 이동
-mouse.move(566,843)
 
