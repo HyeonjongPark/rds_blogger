@@ -31,7 +31,7 @@ chromedriver <-  str_extract_all(toString(list_versions("chromedriver")), paste0
   as.numeric_version(.) %>% 
   min(.)
 
-rD1 <- rsDriver(browser = "chrome", port = 8986L, geckover = NULL, 
+rD1 <- rsDriver(browser = "chrome", port = 8987L, geckover = NULL, 
                 chromever =  toString(chromedriver), iedrver = NULL, 
                 phantomver = NULL, verbose = TRUE)
 remDr <- rD1[["client"]] 
@@ -137,9 +137,9 @@ btn_search$clickElement() # 검색
 Sys.sleep(3) # 검색중.. 
 
 
-# 
-# # 전체 페이지 crawling
-# frontPage = remDr$getPageSource()
+ 
+# 전체 페이지 crawling
+frontPage = remDr$getPageSource()
 # 
 # ## 물건 번호 가져오기
 # serial_number = read_html(frontPage[[1]]) %>% html_nodes('.info') %>% html_nodes('dt') %>% html_text()
@@ -230,7 +230,10 @@ for(i in 1:page_count) {
   Sys.sleep(3)
 }
 
-df$year = substr(df$serial_number, 1, 4)
+df 
+
+
+# df$year = substr(df$serial_number, 1, 4)
 
 
 
@@ -241,25 +244,6 @@ remDr$close() #크롬 Close
 
 
 
-
-
-
-
-library(rvest)
-library(stringr)
-
-##다음 기사 주소##
-url = "https://news.v.daum.net/v/20190414215757617"
-news <-read_html(url)   ##news에 gtml을 넣게됨##
-node <-html_nodes(news,".thumb_g_article")   ##.thumb_g_article을 찾아 node에 넣게됨##
-
-imgurl<-html_attr(node,'src')   ##node의 src를 imgurl에 넣게됨##
-index=1   ##image파일을 저장할때 파일에 붙는 번호를 위한 변수 ex) image1, image2, image3##
-
-for(urls in imgurl){ ## imgurl만큼 반복##
-  download.file(urls,destfile= paste0("C:/Users/guswh/Desktop/data-analysis/rds_blogger/out/image",index,".jpg"),method='curl')#curl 이미지를 다운받는 함수  
-  index=index+1
-}
 
 
 
