@@ -38,8 +38,8 @@ property_toji$adress = as.character(property_toji$adress)
 
 
 property_toji %>% head
-
-register_google("")
-lng_lat_1000 = geocode(property_toji$adress[501:1000])
-
+source("./src/998_api_key.R")
+register_google(map_key)
+geocode(property_toji$adress[1:10])
+  
 
