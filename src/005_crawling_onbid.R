@@ -22,6 +22,8 @@ library(stringr)
 library(dplyr)
 library(glue)
 
+
+
 chromeversion <- toString(dir(path = 'C:/Program Files (x86)/Google/Chrome/Application/')) %>% 
   str_extract(., '^\\d+\\.\\d+\\.\\d+\\.') %>% 
   str_replace_all(., '\\.', '\\\\.')  
@@ -31,7 +33,8 @@ chromedriver <-  str_extract_all(toString(list_versions("chromedriver")), paste0
   as.numeric_version(.) %>% 
   min(.)
 
-rD1 <- rsDriver(browser = "chrome", port = 8987L, geckover = NULL, 
+as.numeric(paste0(sample(2000:8000, size = 1) ,"L"))
+rD1 <- rsDriver(browser = "chrome", port = sample(2000:8000, size = 1), geckover = NULL, 
                 chromever =  toString(chromedriver), iedrver = NULL, 
                 phantomver = NULL, verbose = TRUE)
 remDr <- rD1[["client"]] 
