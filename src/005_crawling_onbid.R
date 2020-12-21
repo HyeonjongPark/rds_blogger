@@ -33,8 +33,7 @@ chromedriver <-  str_extract_all(toString(list_versions("chromedriver")), paste0
   as.numeric_version(.) %>% 
   min(.)
 
-as.numeric(paste0(sample(2000:8000, size = 1) ,"L"))
-rD1 <- rsDriver(browser = "chrome", port = sample(2000:8000, size = 1), geckover = NULL, 
+rD1 <- rsDriver(browser = "chrome", port = sample(2000L:8000L, size = 1), geckover = NULL, 
                 chromever =  toString(chromedriver), iedrver = NULL, 
                 phantomver = NULL, verbose = TRUE)
 remDr <- rD1[["client"]] 
