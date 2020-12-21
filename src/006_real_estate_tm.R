@@ -39,10 +39,7 @@ property_toji$adress = as.character(property_toji$adress)
 
 property_toji %>% head
 
-register_google("AIzaSyBhkb5Pp34iyZIaOtEZp4HSPEH2egDxYts")
-lng_lat_500 = geocode(property_toji$adress[1:500])
-
-register_google("AIzaSyD_BbZHN4VvQ8nW-hX-ynYBjH-UlShQMRE")
+register_google("")
 lng_lat_1000 = geocode(property_toji$adress[501:1000])
 
 
