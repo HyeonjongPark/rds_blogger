@@ -1,6 +1,11 @@
 
 rm(list = ls())
 
+#install.packages('leaflet')
+# install.packages("widgetframe")
+library('leaflet')
+library(widgetframe)
+
 library(tibble)
 library(readr)
 library(rlang)
@@ -8,6 +13,7 @@ library(dplyr)
 library(tidyverse)
 library(data.table)
 library(stringr)
+
 
 getwd()
 
@@ -36,10 +42,42 @@ property_toji$adress = regmatches(property_toji$detail, regexpr(".+[번]+[지]",
 property_toji$adress = enc2utf8(property_toji$adress)
 property_toji$adress = as.character(property_toji$adress)
 
-
 property_toji %>% head
 source("./src/998_api_key.R")
 register_google(map_key)
-geocode(property_toji$adress[1:10])
+# lng_lat_300 = geocode(property_toji$adress[1:300])
+#write.csv(lng_lat_300, "./out/lng_lat_300.csv", row.names = FALSE)
+
+toji_300 = cbind(property_toji[1:300,],lng_lat_300)
+
+toji_300$price = as.double(toji_300$price)
+
+
+# 300개의 데이터를 활용한 prototype
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addMarkers(lng=~lon, lat=~lat, label=~adress)
+  #addCircles(lng=~lon, lat=~lat, color='#006633')
+
+
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addCircles(lng=~lon, lat=~lat, color='#006633')
+
+
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addMarkers(clusterOptions = markerClusterOptions()) %>% 
+  addTiles()
   
+
+
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles('Stamen.Watercolor') %>%
+  addCircles(lng=~lon, lat=~lat, color='#006633')
+
 
