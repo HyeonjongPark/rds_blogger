@@ -1,0 +1,409 @@
+---
+title: "leopark flexDashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    vertical_layout: scroll
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(knitr)
+library(DT)
+library(scales)
+library(plotly)
+library(highcharter)
+library(leaflet)
+library(tidyverse)
+library(xlsx)
+library(viridisLite)
+library(RColorBrewer)
+library(wordcloud)
+library(plotly)
+library(wordcloud2)
+library(rpivotTable)
+library(htmlwidgets)
+library(openintro)
+library(countrycode)
+library(leaflet.extras)
+library(widgetframe)
+library(data.table)
+library(RColorBrewer)
+library(ggmap)
+
+
+```
+
+
+```{r}
+
+property_2020 = fread("../data/data006/newstapa-jaesan-2020/정기공개/CSV/newstapa-jaesan-2020-records.csv", encoding = "UTF-8")
+property_2019 = fread("../data/data006/newstapa-jaesan-2019/CSV/newstapa-jaesan-2019-records.csv")
+property_2018 = fread("../data/data006/newstapa-jaesan-2018/CSV/newstapa-jaesan-2018-records.csv")
+
+property_2020 = property_2020[,c("연도", "이름", "소속", "직위", "본인과의 관계", "재산 대분류", "재산의 종류", "소재지 면적 등 권리의 명세", "현재가액")]
+property_2019 = property_2019[,c("연도", "이름", "소속", "직위", "본인과의 관계", "재산 대분류", "재산의 종류", "소재지 면적 등 권리의 명세", "현재가액")]
+property_2018 = property_2018[,c("연도", "이름", "소속", "직위", "본인과의 관계", "재산 대분류", "재산의 종류", "소재지 면적 등 권리의 명세", "현재가액")]
+
+
+property = rbind(property_2018, property_2019)
+colnames(property) = c("year", "name", "belong", "spot", "relationship",
+                       "category", "kinds", "detail", "price")
+
+
+property_toji = property %>% filter(category == "토지")
+property_toji = property_toji[grepl("번지",property_toji$detail),]
+
+property_toji$address = regmatches(property_toji$detail, regexpr(".+[번]+[지]", property_toji$detail))
+property_toji$address = enc2utf8(property_toji$address)
+property_toji$address = as.character(property_toji$address)
+
+source("./998_api_key.R")
+register_google(map_key)
+# lng_lat_300 = geocode(property_toji$address[1:300])
+#write.csv(lng_lat_300, "./out/lng_lat_300.csv", row.names = FALSE)
+
+lng_lat_300 = read.csv("../out/lng_lat_300.csv")
+
+toji_300 = cbind(property_toji[1:300,],lng_lat_300)
+toji_300$price = as.double(toji_300$price)
+
+
+
+```
+
+Maps {data-orientation=rows }
+==============================
+Row {data-height=50}
+--------------------------
+
+Row {data-height=400}
+------------------------------
+### Restaurants by Country {.tabset .tabset-fade}
+
+```{r}
+
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addCircles(lng=~lon, lat=~lat, color='#006633')
+
+
+```
+
+### Map2
+
+```{r}
+
+cof <- colorFactor(c(brewer.pal(12, "Paired"), brewer.pal(3, "Dark2")), domain=unique(toji_300$kinds))
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  #addProviderTiles('CartoDB.Positron') %>%
+  addCircles(lng=~lon, lat=~lat, color=~cof(kinds), popup = toji_300$kinds, weight = 3, radius = (toji_300$price/50) , 
+             stroke = F, fillOpacity = 0.5) %>% 
+  addLegend("bottomright", colors= c(brewer.pal(12, "Paired"), brewer.pal(3, "Dark2")),
+            labels=unique(toji_300$kinds), title="kinds of real estate") 
+
+
+```
+
+Row {data-height=400}
+-----------------------------------
+
+### Restaurants by Rating  
+
+```{r}
+
+
+cof <- colorFactor(c(brewer.pal(12, "Paired"), brewer.pal(3, "Dark2")), domain=unique(toji_300$kinds))
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  #addProviderTiles('CartoDB.Positron') %>%
+  #addProviderTiles('Stamen.Watercolor') %>%
+  addCircles(lng=~lon, lat=~lat, color=~cof(kinds), popup = toji_300$kinds, weight = 3, radius = 5000 , 
+             stroke = F, fillOpacity = 0.5) %>% 
+  addMarkers(clusterOptions = markerClusterOptions()) %>%
+  addLegend("bottomright", colors= c(brewer.pal(12, "Paired"), brewer.pal(3, "Dark2")),
+            labels=unique(toji_300$kinds), title="kinds of real estate") 
+
+
+```
+
+<!-- Restaurants {data-orientation=rows data-icon="fa-bar-chart" } -->
+<!-- ====================================================================== -->
+
+<!-- ## Row {data-height=100} -->
+<!-- ------------------------- -->
+
+<!-- ## Row 1 {data-height=110 } -->
+<!-- ---------------------------------------------------------------------- -->
+
+<!-- ### Restaurants   -->
+
+<!-- ```{r} -->
+<!-- valueBox(length(unique(rest_data$Restaurant.Name)),icon = "ion-restaurant",color="red") -->
+<!-- ``` -->
+
+<!-- ### Countries   -->
+
+<!-- ```{r} -->
+<!-- valueBox(length(unique(rest_data$Country.Code)),icon="fa-globe",color="green") -->
+<!-- ``` -->
+
+
+<!-- ### Cuisines   -->
+<!-- ```{r} -->
+<!-- valueBox(length(unique(rest_data$Cuisines)),icon="fa-coffee",color="brown") -->
+<!-- ``` -->
+
+<!-- ### Cities -->
+
+<!-- ```{r} -->
+<!-- valueBox(length(unique(rest_data$City)),icon="fa-globe") -->
+<!-- ``` -->
+
+
+<!-- ## Row 2 {data-height=250} -->
+<!-- ----------------------------------------------------------------------- -->
+
+<!-- ### Restaurants by Rating   -->
+
+<!-- ```{r} -->
+<!-- rest_rate<-rest_data %>% group_by(Rating.text)%>%summarize(rcnt=n()) -->
+<!-- rest_rate %>% -->
+<!-- plot_ly(labels=~Rating.text,values=~rcnt) %>% -->
+<!--   add_pie(hole=0.3)  -->
+<!-- ``` -->
+
+<!-- ### Booking Facility -->
+
+<!-- ```{r} -->
+<!-- rest_data %>%group_by(Has.Table.booking)%>%summarize(tbcnt=n())%>% -->
+<!-- plot_ly(labels=~Has.Table.booking,values=~tbcnt) %>% -->
+<!--   add_pie(hole=0.3)  -->
+<!-- ``` -->
+
+<!-- ### Online Develiery -->
+
+<!-- ```{r} -->
+<!-- rest_data %>%group_by(Has.Online.delivery)%>%summarize(tbcnt=n())%>% -->
+<!-- plot_ly(labels=~Has.Online.delivery,values=~tbcnt) %>% -->
+<!--   add_pie(hole=0.3) -->
+<!-- ``` -->
+
+<!-- ## Row 3 {.tabset .tabset-fade} -->
+<!-- ---------------------------------------------------------------------- -->
+
+
+<!-- ### Restaurants per Country -->
+
+<!-- ```{r} -->
+<!-- ctry<-rest_data %>%group_by(Country)%>%summarize(cnt=n())%>%arrange(desc(cnt)) -->
+<!-- highchart() %>% -->
+<!--   hc_xAxis(categories = ctry$Country) %>%  -->
+<!--   hc_add_series(name = "No of Restaraunts", data = ctry$cnt, colorByPoint =  TRUE) %>%  -->
+<!--     hc_chart(type = "bar", options3d = list(enabled = TRUE, beta = 1, alpha = 1)) %>% hc_add_theme(hc_theme_google()) -->
+<!-- ``` -->
+
+<!-- ### Top Cities -->
+<!-- ```{r} -->
+
+<!-- city<-rest_data %>%group_by(City)%>%summarize(cnt=n())%>%arrange(desc(cnt))%>%head(15) -->
+<!-- highchart() %>% -->
+<!--   hc_xAxis(categories = city$City) %>%  -->
+<!--   hc_add_series(name = "No of Restaraunts", data = city$cnt, colorByPoint =  TRUE) %>%  -->
+<!--   hc_chart(type = "column", options3d = list(enabled = TRUE, beta = 1, alpha = 1)) %>% hc_add_theme(hc_theme_google()) -->
+
+<!-- ``` -->
+
+<!-- ### Top Restaurants by Votes -->
+
+<!-- ```{r} -->
+<!-- rest<-rest_data %>%select(Restaurant.Name,Votes)%>%arrange(desc(Votes))%>%head(10) -->
+<!-- highchart() %>% -->
+<!--   hc_xAxis(categories = rest$Restaurant.Name) %>%  -->
+<!--   hc_add_series(name = "No of Votes", data = rest$Votes, colorByPoint =  TRUE) %>%  -->
+<!--   hc_chart(type = "column", options3d = list(enabled = TRUE, beta = 1, alpha = 1)) %>% hc_add_theme(hc_theme_google()) -->
+<!-- ``` -->
+
+<!-- ### Popular Restaurant Names -->
+<!-- ```{r} -->
+
+<!-- res_name<-rest_data %>%group_by(Restaurant.Name)%>%summarize(rescnt=n())%>%arrange(desc(rescnt))%>%head(200) -->
+<!-- wordcloud(res_name$Restaurant.Name,res_name$rescnt, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2")) -->
+<!-- ``` -->
+
+<!-- Cuisines {data-orientation=rows icon="fa-utensils" } -->
+<!-- ====================================================================== -->
+
+<!-- ## Row {data-height=50} -->
+<!-- ----------------------------------------------------- -->
+
+<!-- ## Row 1 {data-height=450} -->
+<!-- --------------------------------------------------------------------- -->
+
+<!-- ### Cuisines worldwide   -->
+
+<!-- ```{r} -->
+<!-- cuisines <- rest_data %>% -->
+<!--   select(Country, Cuisines) %>% -->
+<!--     mutate(Cuisines=strsplit(as.character(Cuisines), ", ")) %>% -->
+<!--   unnest(Cuisines) %>% -->
+<!--     group_by(Cuisines) %>% -->
+<!--   summarise(Count = n()) %>% -->
+<!--   arrange(desc(Count))%>%head(20) -->
+
+
+<!-- hchart(cuisines, "treemap", hcaes(x = Cuisines, value = Count, color = Count)) -->
+
+<!-- ``` -->
+
+<!-- ## Row 2 {data-height=450 .tabset .tabset-fade} -->
+<!-- --------------------------------------------------------------------------- -->
+
+<!-- ### Cuisines - USA -->
+
+<!-- ```{r } -->
+<!-- cui_all<-rest_data %>% -->
+<!--   select(Country, Cuisines) %>% -->
+<!--     mutate(Cuisines=strsplit(as.character(Cuisines), ", ")) %>% -->
+<!--   unnest(Cuisines) %>% -->
+<!--     group_by(Country,Cuisines) %>% -->
+<!--   summarise(Count = n()) %>% -->
+<!--   arrange(desc(Count)) -->
+<!-- us<-cui_all %>%filter(Country=="United States") -->
+<!-- wordcloud(us$Cuisines,us$Count, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2")) -->
+
+<!-- ``` -->
+
+<!-- ### Cuisines - India -->
+
+<!-- ```{r} -->
+<!-- india<-cui_all %>%filter(Country=="India") -->
+<!-- wordcloud(india$Cuisines,india$Count, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2")) -->
+
+<!-- ``` -->
+
+
+
+
+
+<!-- Price {data-orientation=rows } -->
+<!-- =================================== -->
+
+<!-- ## Row {data-height=50} -->
+<!-- ------------------------------- -->
+
+<!-- ## Row { data-height=400} -->
+<!-- ---------------------------------- -->
+
+<!-- ### Restaurants by Price Range -->
+
+
+<!-- ```{r} -->
+<!-- rest_data %>% group_by(Price.range)%>% -->
+<!--   summarise(pcnt=n())%>% -->
+<!--   plot_ly(x=~Price.range, -->
+<!--          y=~pcnt, -->
+<!--          fill="blue", -->
+<!--          type='bar')%>% -->
+<!--   layout(xaxis=list(title="Restaraunts by Price Range"), yaxis=list(title="Count")) -->
+<!-- ``` -->
+
+<!-- ### Rating Vs Votes -->
+
+<!-- ```{r} -->
+
+
+<!-- hc_p1<-hchart(rest_data, "scatter",hcaes(x = Votes, y = Aggregate.rating,group=1)) -->
+<!--   hc_p1<-hc_p1 %>%hc_title(text = "Votes vs Rating") %>%  -->
+<!--   hc_xAxis(title = list(text = "Votes")) %>%  -->
+<!--   hc_yAxis(title = list(text = "Rating")) %>%  -->
+<!--   hc_chart(zoomType = "xy")  -->
+
+<!-- hc_p1 -->
+<!-- ``` -->
+
+<!-- ## Row {data-height=400} -->
+<!-- ------------------------------- -->
+
+<!-- ### Costlier Restaurant  -India -->
+
+<!-- ```{r} -->
+<!-- cost<-rest_data %>%filter(Country =="India") %>%select(Restaurant.Name,Average.Cost.for.two,Currency)%>%arrange(desc(Average.Cost.for.two))%>%head(10) -->
+<!-- highchart() %>% -->
+<!--   hc_xAxis(categories = cost$Restaurant.Name) %>%  -->
+<!--   hc_add_series(name = "Average cost for two", data = cost$Average.Cost.for.two, colorByPoint =  TRUE) %>%  -->
+<!--   hc_title(text = "Costlier Restaurants-India")  %>% -->
+<!--   hc_chart(type = "bar", options3d = list(enabled = TRUE, beta = 1, alpha = 1)) %>% hc_add_theme(hc_theme_google()) -->
+<!-- ``` -->
+<!-- ### United States  -->
+
+<!-- ```{r} -->
+<!-- cost<-rest_data %>%filter(Country =="United States") %>%select(Restaurant.Name,Average.Cost.for.two,Currency)%>%arrange(desc(Average.Cost.for.two))%>%head(10) -->
+<!-- highchart() %>% -->
+<!--   hc_xAxis(categories = cost$Restaurant.Name) %>%  -->
+<!--   hc_add_series(name = "Average cost for two", data = cost$Average.Cost.for.two, colorByPoint =  TRUE) %>%  -->
+<!--   hc_title(text = "Costlier Restaurants-US")  %>% -->
+<!--   hc_chart(type = "bar", options3d = list(enabled = TRUE, beta = 1, alpha = 1)) %>% hc_add_theme(hc_theme_google()) -->
+<!-- ``` -->
+
+<!-- ### Average Cost for two vs Rating -->
+
+<!-- ```{r} -->
+
+
+<!-- hc_p1<-hchart(rest_data, "scatter",hcaes(x = Average.Cost.for.two, y = Aggregate.rating,group=1)) -->
+<!--   hc_p1<-hc_p1 %>%hc_title(text = "Avg Cost vs Rating") %>%  -->
+<!--   hc_xAxis(title = list(text = "Average Cost for two")) %>%  -->
+<!--   hc_yAxis(title = list(text = "Rating")) %>%  -->
+<!--   hc_chart(zoomType = "xy")  -->
+
+<!-- hc_p1 -->
+<!-- ``` -->
+
+<!-- Search {data-orientation=rows data-icon="fa-list" } -->
+<!-- ================================ -->
+
+<!-- ## Row {data-height=50} -->
+<!-- ------------------------- -->
+
+<!-- ## Row {data-height=900 data-width=800} -->
+<!-- ---------------------------- -->
+
+<!-- ### Find your favorite Restaurants  - Rating >3 -->
+
+
+<!-- ```{r} -->
+<!-- dt<-rest_data %>%filter(Aggregate.rating>3) %>%select(Restaurant.Name,Country,Address,Cuisines,Average.Cost.for.two,Has.Table.booking,Has.Online.delivery,Aggregate.rating,Votes) -->
+<!-- datatable(dt, -->
+<!-- caption="Best Restaurants", -->
+<!-- rownames=T, -->
+<!-- filter="top", -->
+<!-- options = list(  pageLength = 10 -->
+<!-- )) -->
+
+<!-- ``` -->
+
+<!-- About {data-orientation=rows } -->
+<!-- ===================================================== -->
+
+<!-- ## Row {data-height=100} -->
+<!-- --------------------------- -->
+
+
+<!-- ## Row   -->
+<!-- ---------- -->
+<!-- Kernel was about how to build interactive dashboard in R with package **flexdashboard ** -->
+
+<!-- The Following options has been used in this kernel -->
+
+<!-- 1) Multiple Pages -->
+<!-- 2) tabset in Pages -->
+<!-- 3) Multiple plot layout -->
+<!-- 4) icons -->
+<!-- 5) valueboxes -->
+
+<!-- References : -->
+<!-- https://rmarkdown.rstudio.com/flexdashboard/using.html -->
