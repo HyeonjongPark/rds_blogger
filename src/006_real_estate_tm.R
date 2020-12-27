@@ -81,3 +81,34 @@ leaflet(toji_300) %>%
   addCircles(lng=~lon, lat=~lat, color='#006633')
 
 
+library(RColorBrewer)
+#display.brewer.all(colorblindFriendly = T)
+
+cof <- colorFactor(c(brewer.pal(12, "Paired"), brewer.pal(3, "Dark2")), domain=unique(toji_300$kinds))
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  #addProviderTiles('CartoDB.Positron') %>%
+  #addProviderTiles('Stamen.Watercolor') %>%
+  addCircles(lng=~lon, lat=~lat, color=~cof(kinds), popup = toji_300$kinds, weight = 3, radius = 5000 , 
+             stroke = F, fillOpacity = 0.5) %>% 
+  addMarkers(clusterOptions = markerClusterOptions()) %>%
+  addLegend("bottomright", colors= c(brewer.pal(12, "Paired"), brewer.pal(3, "Dark2")),
+            labels=unique(toji_300$kinds), title="kinds of real estate") 
+
+
+
+
+library(RColorBrewer)
+#display.brewer.all(colorblindFriendly = T)
+
+cof <- colorFactor(c(brewer.pal(12, "Paired"), brewer.pal(3, "Dark2")), domain=unique(toji_300$kinds))
+leaflet(toji_300) %>%
+  setView(lng=126.9784, lat=36.566, zoom=7) %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  #addProviderTiles('CartoDB.Positron') %>%
+  addCircles(lng=~lon, lat=~lat, color=~cof(kinds), popup = toji_300$kinds, weight = 3, radius = (toji_300$price/50) , 
+             stroke = F, fillOpacity = 0.5) %>% 
+  addLegend("bottomright", colors= c(brewer.pal(12, "Paired"), brewer.pal(3, "Dark2")),
+            labels=unique(toji_300$kinds), title="kinds of real estate") 
+
